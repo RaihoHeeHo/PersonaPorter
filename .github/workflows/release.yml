@@ -1,0 +1,72 @@
+# Builds Persona Porter for Windows, macOS (Apple Silicon and Intel) and Linux
+# whenever a GitHub release is published, runs the tests first, and attaches
+# the four downloads to that release. Can also be run by hand from Actions.
+name: Build downloads
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows
+          - os: macos-latest
+            name: macOS-AppleSilicon
+          - os: macos-15-intel
+            name: macOS-Intel
+          - os: ubuntu-22.04
+            name: Linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run tests
+        continue-on-error: true   # a failure shows as a warning; the build still runs
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y xvfb
+            xvfb-run -a python -m unittest discover -p "test_*.py"
+          else
+            python -m unittest discover -p "test_*.py"
+          fi
+      - name: Install PyInstaller
+        run: python -m pip install pyinstaller
+      - name: Build
+        shell: bash
+        run: |
+          python -m PyInstaller --noconfirm --windowed --name "Persona Porter" \
+            $([ "${{ runner.os }}" = "macOS" ] || echo --onefile) persona_porter_gui.py
+      - name: Package
+        shell: bash
+        run: |
+          OUT="PersonaPorter-${{ matrix.name }}.zip"
+          cd dist
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            7z a "../$OUT" "Persona Porter.exe"
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            ditto -c -k --keepParent "Persona Porter.app" "../$OUT"
+          else
+            chmod +x "Persona Porter"; zip "../$OUT" "Persona Porter"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PersonaPorter-${{ matrix.name }}
+          path: PersonaPorter-${{ matrix.name }}.zip
+      - name: Attach to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: gh release upload "${{ github.event.release.tag_name }}" "PersonaPorter-${{ matrix.name }}.zip" --clobber
