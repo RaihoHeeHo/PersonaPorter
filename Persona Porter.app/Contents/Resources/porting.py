@@ -287,7 +287,7 @@ def annotate(plan, source, target, source_id, target_id, options, lore):
                  'allow_larger_models': options.expand_models,
                  'unchanged_alternate_lore_bundles': target.other_myth_bundles,
                  'scope': 'Models, selected UI and explicit gameplay edits. Arcana, inheritance, fusion rules, voices and story scripts remain unchanged; gameplay changes are listed per swap.',
-                 'known_test': 'P4 Mokoi (04E) over P3 FES Orpheus (001) including UI and lore confirmed by the user. Other pairs and reverse direction require in-game testing.'})
+                 'known_test': 'P4 Mokoi (04E) over P3 FES Orpheus (001) including UI and lore confirmed in game. Other pairs and reverse direction require in-game testing.'})
     return plan
 
 

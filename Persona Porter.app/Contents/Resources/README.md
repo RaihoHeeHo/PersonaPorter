@@ -6,21 +6,34 @@ the standard library. No pip packages or game assets are included.
 
 ## Start the GUI
 
-On your Mac, unzip the package and double-click **Persona Porter.app**.
-The app uses your installed Python with Tk (verified on this Mac with
-Homebrew Python 3.15 and Tk 9.1). A launcher named
-**Launch Persona Porter.command** is also included. Keep the script files
-together if using the command launcher.
+### Download (no Python needed)
 
-From Terminal, or on another platform with Python/Tk:
+Get the zip for your computer from the Releases page:
 
-```sh
-python3 persona_porter_gui.py
-```
+| Download | For |
+|---|---|
+| `PersonaPorter-macOS-AppleSilicon.zip` | M1/M2/M3/M4 Macs |
+| `PersonaPorter-macOS-Intel.zip` | Intel Macs (Apple menu → About This Mac shows which) |
+| `PersonaPorter-Windows.zip` | Windows 10/11 |
+| `PersonaPorter-Linux.zip` | 64-bit Linux desktops |
 
-Windows installations may use `python` instead of `python3`. The GUI is
-tested on this Mac; Windows and Linux have not been tested. The Mac app
-wrapper does not bundle a Python interpreter or Tk runtime.
+- **macOS:** the first time, right-click **Persona Porter.app** and choose
+  **Open** (it isn't signed by Apple).
+- **Windows:** if SmartScreen warns about an unknown app, click
+  **More info → Run anyway**.
+- **Linux:** run `./"Persona Porter"`.
+
+### Run from source (Python 3.10+ with Tk)
+
+| System | Start it with | If Tk is missing |
+|---|---|---|
+| macOS | double-click **Persona Porter.app** or **Launch Persona Porter.command** | `brew install python-tk@3.X` (your Python version), or use python.org Python |
+| Windows | double-click **Launch Persona Porter.bat** | install Python from python.org with "Add python.exe to PATH" ticked |
+| Linux | `./launch-persona-porter.sh` | `sudo apt install python3-tk` (Debian/Ubuntu), `sudo dnf install python3-tkinter` (Fedora), `sudo pacman -S tk` (Arch) |
+
+Or run `python3 persona_porter_gui.py` (`python` on Windows). Keep the script
+files together. The test suite (`python3 -m unittest discover -p "test_*.py"`)
+also passes on Linux with Python 3.11 and 3.12.
 
 ## Make a swap
 
@@ -102,7 +115,7 @@ ISO was written as planned, not that every source/target pair works in game.
 
 ## Validation status
 
-The user confirmed P4 **Mokoi [04E] → P3 FES Orpheus [001]**, including model,
+Tested in game (PCSX2): P4 **Mokoi [04E] → P3 FES Orpheus [001]**, including model,
 skills/animations, menu, Compendium, UI images and lore. The generalized GUI
 planner reproduces all eight files from that confirmed recipe exactly.
 
@@ -110,7 +123,7 @@ The reverse **P3 FES Orpheus [001] → P4 Izanagi [001]** build has been checked
 against both real ISOs: models, name, both images and lore match the donor;
 P4's text control prefix is preserved. It still requires in-game validation.
 Other combinations are also experimental. The GUI and previews have been
-opened on this Mac; the automated suite contains 38 checks.
+opened on macOS; the automated suite contains 38 checks.
 
 The loaded catalogs contain 190 named P3 FES slots and 214 named P4 slots.
 These include some party variants; catalog presence does not establish
@@ -125,7 +138,7 @@ specific version named in each section.
 A foundation for investigating Persona 3 ↔ Persona 4 **PS2** model
 ports. Python 3.10 or later; no packages to install. Tested with Python 3.15.
 This is not yet a general model converter or a finished porting tool. Archive reading
-and batch model inspection have been exercised on the user's P3 FES ISO
+and batch model inspection have been exercised on the NTSC-U P3 FES ISO
 (`SLUS_216.21`) and Persona 4 ISO (`SLUS_217.82`). Portable, Golden and Reload are
 outside this build's scope.
 
@@ -187,7 +200,7 @@ explicit error. Matching filenames across games do not prove matching identities
 
 ## P3 FES observations
 
-The user's ISO has `SLUS_216.21` and `VMODE=NTSC` in `SYSTEM.CNF`.
+The NTSC-U ISO has `SLUS_216.21` and `VMODE=NTSC` in `SYSTEM.CNF`.
 `BGM.CVM`, `BTL.CVM` and `DATA.CVM` all expose readable ISO9660 volumes at
 offset `0x1800`. Their file counts are 223, 4,355 and 7,441 respectively.
 
@@ -274,10 +287,10 @@ different source ID (P4 `04E`) over P3 `001` to make the result visible.
 
 ## Confirmed model result and new UI identity recipe
 
-The user tested build 0.3 in PCSX2 and confirmed that Mokoi replaces Orpheus
+Build 0.3 was tested in PCSX2: Mokoi replaces Orpheus
 in battle, with skills and animations working normally. That is an in-game
 confirmation for this battle model recipe. The facility model was included
-but has not been separately confirmed by the user.
+but has not been separately confirmed in game.
 
 Build 0.4 adds `mokoi_test.py` for this specific pair of NTSC-U editions.
 It starts from the clean P3 FES ISO and includes both model replacements
@@ -311,7 +324,7 @@ the target dialog label, file length, other dialogs and relocation bytes
 remain in their original positions. Inputs with other layouts or longer
 donor lore are refused rather than rebuilt.
 
-**Build 0.5 lore correction:** The user confirmed that the Persona menu,
+**Build 0.5 lore correction:** In-game testing showed that the Persona menu,
 Compendium and battle work in 0.4, but the lore still displayed Orpheus's
 description. A whole-image text search found three copies of the original
 lore: the standalone HELP file and copies inside both Velvet Room
@@ -364,7 +377,7 @@ P4 skill IDs and table records must not be blindly copied into P3.
 - Bounds checks prevent nested reads from escaping their parent archive.
 - Large file payloads are streamed. Directory listings are parsed per record.
 - Automated tests use constructed archives and chunk streams. Separately,
-  the inventory and model scan were run against the user's P3 FES and P4 ISOs.
+  the inventory and model scan were run against real NTSC-U P3 FES and P4 ISOs.
 
 Run the checks:
 
